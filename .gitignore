@@ -1,4 +1,22 @@
-.venv/
-tests/
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+
+# SQLite databases
+*.db
+*.sqlite3
+
+# Flask instance / local files
+instance/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Pytest
 .pytest_cache/

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Referrals</title>
+</head>
+<body>
+    <h1>Referrals</h1>
+
+    <form method="POST" action="/referrals">
+        <div>
+            <label for="referring_realtor_id">Referring Realtor</label>
+            <select id="referring_realtor_id" name="referring_realtor_id" required>
+                <option value="">Select a realtor</option>
+                {% for realtor in realtors %}
+                    <option value="{{ realtor['id'] }}">
+                        {{ realtor["first_name"] }} {{ realtor["last_name"] }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="referred_first_name">Referred First Name</label>
+            <input type="text" id="referred_first_name" name="referred_first_name" required>
+        </div>
+
+        <div>
+            <label for="referred_last_name">Referred Last Name</label>
+            <input type="text" id="referred_last_name" name="referred_last_name" required>
+        </div>
+
+        <div>
+            <label for="referred_email">Referred Email</label>
+            <input type="email" id="referred_email" name="referred_email" required>
+        </div>
+
+        <div>
+            <label for="referred_phone">Referred Phone</label>
+            <input type="text" id="referred_phone" name="referred_phone">
+        </div>
+
+        <div>
+            <label for="referral_date">Referral Date</label>
+            <input type="date" id="referral_date" name="referral_date" required>
+        </div>
+
+        <div>
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes"></textarea>
+        </div>
+
+        <button type="submit">Add Referral</button>
+    </form>
+
+    <hr>
+
+    {% if referrals %}
+        <ul>
+        {% for referral in referrals %}
+            <li>
+                Referring Realtor:
+                {{ referral["referring_first_name"] }} {{ referral["referring_last_name"] }}
+                <br>
+                Referred Realtor:
+                {{ referral["referred_first_name"] }} {{ referral["referred_last_name"] }}
+                <br>
+                Email: {{ referral["referred_email"] }}
+                <br>
+                Phone: {{ referral["referred_phone"] }}
+                <br>
+                Referral Date: {{ referral["referral_date"] }}
+                <br>
+                Status: {{ referral["status"] }}
+                <br>
+                Notes: {{ referral["notes"] }}
+            </li>
+            <br>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No referrals yet.</p>
+    {% endif %}
+</body>
+</html>
