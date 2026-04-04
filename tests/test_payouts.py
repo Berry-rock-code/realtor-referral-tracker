@@ -93,3 +93,77 @@ def test_payouts_page_loads():
 
     assert response.status_code == 200
     assert b"Payouts" in response.data
+
+
+def test_can_mark_payout_as_paid():
+    init_db()
+
+    conn = get_db_connection()
+    conn.execute(
+        """
+        INSERT INTO realtors (first_name, last_name, email, phone, brokerage)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        ("Jake", "Kistler", "jake@example.com", "555-111-2222", "Example Realty"),
+    )
+    conn.commit()
+
+    realtor = conn.execute(
+        "SELECT id FROM realtors WHERE email = ?",
+        ("jake@example.com",),
+    ).fetchone()
+
+    conn.execute(
+        """
+        INSERT INTO referrals (
+            referring_realtor_id,
+            referred_first_name,
+            referred_last_name,
+            referred_email,
+            referred_phone,
+            referral_date,
+            status
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        (realtor["id"], "Darci", "Kistler", "darci@example.com", "555-333-4444", "2026-04-04", "qualified"),
+    )
+    conn.commit()
+
+    referral = conn.execute(
+        "SELECT id FROM referrals WHERE referred_email = ?",
+        ("darci@example.com",),
+    ).fetchone()
+
+    conn.execute(
+        """
+        INSERT INTO payouts (referral_id, payee_realtor_id, amount, status)
+        VALUES (?, ?, ?, ?)
+        """,
+        (referral["id"], realtor["id"], 250.0, "pending"),
+    )
+    conn.commit()
+
+    payout = conn.execute(
+        "SELECT id FROM payouts WHERE referral_id = ?",
+        (referral["id"],),
+    ).fetchone()
+    conn.close()
+
+    client = app.test_client()
+    response = client.post(
+        f"/payouts/{payout['id']}/mark-paid",
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+
+    conn = get_db_connection()
+    updated_payout = conn.execute(
+        "SELECT status, paid_at FROM payouts WHERE id = ?",
+        (payout["id"],),
+    ).fetchone()
+    conn.close()
+
+    assert updated_payout["status"] == "paid"
+    assert updated_payout["paid_at"] is not None

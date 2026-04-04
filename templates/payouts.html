@@ -5,7 +5,39 @@
     <title>Payouts</title>
 </head>
 <body>
+    <nav>
+        <a href="/">Dashboard</a> |
+        <a href="/realtors">Realtors</a> |
+        <a href="/referrals">Referrals</a> |
+        <a href="/payouts">Payouts</a>
+    </nav>
+    <hr>
     <h1>Payouts</h1>
+
+    {% if totals %}
+        <h2>Totals by Realtor</h2>
+        <table border="1" cellpadding="6" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Realtor</th>
+                    <th>Total Paid</th>
+                    <th>Total Pending</th>
+                    <th>Payout Count</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for t in totals %}
+                <tr>
+                    <td>{{ t["realtor_name"] }}</td>
+                    <td>${{ "%.2f"|format(t["total_paid"]) }}</td>
+                    <td>${{ "%.2f"|format(t["total_pending"]) }}</td>
+                    <td>{{ t["payout_count"] }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <hr>
+    {% endif %}
 
     {% if payouts %}
         <ul>
@@ -26,6 +58,12 @@
                 Created At: {{ payout["created_at"] }}
                 <br>
                 Paid At: {{ payout["paid_at"] }}
+                <br>
+                {% if payout["status"] == "pending" %}
+                    <form method="POST" action="/payouts/{{ payout['id'] }}/mark-paid">
+                        <button type="submit">Mark as Paid</button>
+                    </form>
+                {% endif %}
             </li>
             <br>
         {% endfor %}

@@ -6,8 +6,15 @@
 </head>
 <body>
     <h1>Realtor Referral Tracker</h1>
-    <p>Realtors: {{ realtor_count }}</p>
-    <p>Referrals: {{ referral_count }}</p>
-    <p>Payouts: {{ payout_count }}</p>
+    <nav>
+        <a href="/">Dashboard</a> |
+        <a href="/realtors">Realtors</a> |
+        <a href="/referrals">Referrals</a> |
+        <a href="/payouts">Payouts</a>
+    </nav>
+    <hr>
+    <p><a href="/realtors">Realtors</a>: {{ realtor_count }}</p>
+    <p><a href="/referrals">Referrals</a>: {{ referral_count }}</p>
+    <p><a href="/payouts">Payouts</a>: {{ payout_count }}</p>
 </body>
 </html>

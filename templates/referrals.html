@@ -5,7 +5,18 @@
     <title>Referrals</title>
 </head>
 <body>
+    <nav>
+        <a href="/">Dashboard</a> |
+        <a href="/realtors">Realtors</a> |
+        <a href="/referrals">Referrals</a> |
+        <a href="/payouts">Payouts</a>
+    </nav>
+    <hr>
     <h1>Referrals</h1>
+
+    {% if error %}
+        <p style="color: red;"><strong>Error:</strong> {{ error }}</p>
+    {% endif %}
 
     <form method="POST" action="/referrals">
         <div>

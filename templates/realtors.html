@@ -5,6 +5,13 @@
     <title>Realtors</title>
 </head>
 <body>
+    <nav>
+        <a href="/">Dashboard</a> |
+        <a href="/realtors">Realtors</a> |
+        <a href="/referrals">Referrals</a> |
+        <a href="/payouts">Payouts</a>
+    </nav>
+    <hr>
     <h1>Realtors</h1>
 
     <form method="POST" action="/realtors">
@@ -39,13 +46,37 @@
     <hr>
 
     {% if realtors %}
-        <ul>
-        {% for realtor in realtors %}
-            <li>
-                {{ realtor["first_name"] }} {{ realtor["last_name"] }} - {{ realtor["email"] }}
-            </li>
-        {% endfor %}
-        </ul>
+        <table border="1" cellpadding="6" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Brokerage</th>
+                    <th>Referred By</th>
+                    <th>Referrals Made</th>
+                    <th>Total Earned</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for realtor in realtors %}
+                <tr>
+                    <td>{{ realtor["first_name"] }} {{ realtor["last_name"] }}</td>
+                    <td>{{ realtor["email"] }}</td>
+                    <td>{{ realtor["phone"] or "—" }}</td>
+                    <td>
+                        <form method="POST" action="/realtors/{{ realtor['id'] }}/update-brokerage" style="display:flex; gap:4px;">
+                            <input type="text" name="brokerage" value="{{ realtor['brokerage'] or '' }}" style="width:140px;">
+                            <button type="submit">Update</button>
+                        </form>
+                    </td>
+                    <td>{{ realtor["referred_by"] or "—" }}</td>
+                    <td>{{ realtor["referrals_made"] }}</td>
+                    <td>${{ "%.2f"|format(realtor["total_paid"]) }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     {% else %}
         <p>No realtors yet.</p>
     {% endif %}
