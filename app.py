@@ -1,5 +1,11 @@
+import os
 import sqlite3
+from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for
+from integrations.salesforce import import_realtors, is_configured as sf_is_configured
+from integrations.sheets import export_referrals, is_configured as sheets_is_configured
+
+load_dotenv()
 
 app = Flask(__name__)
 app.config["DATABASE"] = "referral_tracker.db"
@@ -355,6 +361,28 @@ def payouts():
     conn.close()
 
     return render_template("payouts.html", payouts=payout_rows, totals=totals_rows)
+
+
+@app.route("/import/salesforce", methods=["GET"])
+def import_salesforce_page():
+    return render_template("import_salesforce.html", configured=sf_is_configured(), result=None)
+
+
+@app.route("/import/salesforce", methods=["POST"])
+def import_salesforce_run():
+    result = import_realtors(get_db_connection)
+    return render_template("import_salesforce.html", configured=sf_is_configured(), result=result)
+
+
+@app.route("/export/sheets", methods=["GET"])
+def export_sheets_page():
+    return render_template("export_sheets.html", configured=sheets_is_configured(), result=None)
+
+
+@app.route("/export/sheets", methods=["POST"])
+def export_sheets_run():
+    result = export_referrals(get_db_connection)
+    return render_template("export_sheets.html", configured=sheets_is_configured(), result=result)
 
 
 if __name__ == "__main__":

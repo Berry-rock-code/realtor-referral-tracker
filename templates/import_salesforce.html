@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Salesforce Import</title>
+</head>
+<body>
+    <nav>
+        <a href="/">Dashboard</a> |
+        <a href="/realtors">Realtors</a> |
+        <a href="/referrals">Referrals</a> |
+        <a href="/payouts">Payouts</a> |
+        <a href="/import/salesforce">SF Import</a> |
+        <a href="/export/sheets">Sheets Export</a>
+    </nav>
+    <hr>
+    <h1>Salesforce Realtor Import</h1>
+
+    {% if not configured %}
+        <p><strong>Not configured.</strong>
+        Set <code>SF_USERNAME</code>, <code>SF_CLIENT_ID</code>, and either
+        <code>SF_PRIVATE_KEY_FILE</code> (path to your .pem file) or
+        <code>SF_PRIVATE_KEY</code> (raw key string) in your <code>.env</code> file.
+        Optionally set <code>SF_DOMAIN</code> (<code>login</code> for production,
+        <code>test</code> for sandbox).</p>
+    {% else %}
+        <p>Salesforce credentials are configured. Click the button to pull realtors into the local database.</p>
+        <form method="POST" action="/import/salesforce">
+            <button type="submit">Run Import</button>
+        </form>
+    {% endif %}
+
+    {% if result %}
+        <hr>
+        <h2>Import Result</h2>
+        <p>Status: <strong>{{ result.status }}</strong></p>
+        <p>{{ result.message }}</p>
+        {% if result.status == "ok" %}
+            <p>Imported: {{ result.imported }}</p>
+            <p>Skipped (duplicates): {{ result.skipped }}</p>
+        {% endif %}
+        {% if result.errors %}
+            <h3>Warnings</h3>
+            <ul>
+            {% for err in result.errors %}
+                <li>{{ err }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
