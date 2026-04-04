@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 DATABASE = "referral_tracker.db"
@@ -46,6 +46,35 @@ def index():
 def initialize_database():
     init_db()
     return "Database initialized."
+
+@app.route("/realtors", methods=["GET", "POST"])
+def realtors():
+    conn = get_db_connection()
+
+    if request.method == "POST":
+        first_name = request.form["first_name"]
+        last_name = request.form["last_name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        brokerage = request.form["brokerage"]
+
+        conn.execute(
+            """
+            INSERT INTO realtors (first_name, last_name, email, phone, brokerage)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (first_name, last_name, email, phone, brokerage),
+        )
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for("realtors"))
+
+    realtor_rows = conn.execute("SELECT * FROM realtors ORDER BY id DESC").fetchall()
+    conn.close()
+
+    return render_template("realtors.html", realtors=realtor_rows)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
