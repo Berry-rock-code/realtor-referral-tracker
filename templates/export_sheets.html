@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Google Sheets Export</title>
+</head>
+<body>
+    <nav>
+        <a href="/">Dashboard</a> |
+        <a href="/realtors">Realtors</a> |
+        <a href="/referrals">Referrals</a> |
+        <a href="/payouts">Payouts</a> |
+        <a href="/import/salesforce">SF Import</a> |
+        <a href="/export/sheets">Sheets Export</a>
+    </nav>
+    <hr>
+    <h1>Google Sheets Export</h1>
+
+    {% if not configured %}
+        <p><strong>Not configured.</strong>
+        Set <code>GOOGLE_SERVICE_ACCOUNT_FILE</code> and <code>GOOGLE_SPREADSHEET_ID</code>
+        in your <code>.env</code> file. The spreadsheet ID is the long string in the sheet URL:
+        <code>docs.google.com/spreadsheets/d/<strong>SPREADSHEET_ID</strong>/edit</code>.
+        Share the sheet with the service account email (Editor access) before exporting.</p>
+    {% else %}
+        <p>Google credentials are configured. Click the button to export all referrals and payout data.</p>
+        <form method="POST" action="/export/sheets">
+            <button type="submit">Export to Sheets</button>
+        </form>
+    {% endif %}
+
+    {% if result %}
+        <hr>
+        <h2>Export Result</h2>
+        <p>Status: <strong>{{ result.status }}</strong></p>
+        <p>{{ result.message }}</p>
+        {% if result.status == "ok" %}
+            <p>Rows written: {{ result.rows_written }}</p>
+            {% if result.sheet_url %}
+                <p><a href="{{ result.sheet_url }}" target="_blank">Open Sheet</a></p>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+</body>
+</html>

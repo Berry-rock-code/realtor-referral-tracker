@@ -13,6 +13,8 @@ __pycache__/
 
 # Flask instance / local files
 instance/
+.env
+service-account.json
 
 # OS junk
 .DS_Store
