@@ -74,6 +74,13 @@
                 Status: {{ referral["status"] }}
                 <br>
                 Notes: {{ referral["notes"] }}
+                <br>
+
+                {% if referral["status"] == "pending" %}
+                    <form method="POST" action="/referrals/{{ referral['id'] }}/qualify">
+                        <button type="submit">Qualify Referral</button>
+                    </form>
+                {% endif %}
             </li>
             <br>
         {% endfor %}

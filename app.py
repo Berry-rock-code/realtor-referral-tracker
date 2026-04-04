@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 DATABASE = "referral_tracker.db"
+PAYOUT_AMOUNT = 250.0
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
@@ -147,6 +148,83 @@ def referrals():
         realtors=realtor_rows,
         referrals=referral_rows,
     )
+
+@app.route("/referrals/<int:referral_id>/qualify", methods=["POST"])
+def qualify_referral(referral_id):
+    conn = get_db_connection()
+
+    referral = conn.execute(
+        """
+        SELECT id, referring_realtor_id, status
+        FROM referrals
+        WHERE id = ?
+        """,
+        (referral_id,),
+    ).fetchone()
+
+    if referral is None:
+        conn.close()
+        return "Referral not found", 404
+    
+    if referral["status"] != "pending":
+        conn.close()
+        return redirect(url_for("referrals"))
+    
+    conn.execute(
+        """
+        UPDATE referrals
+        SET status = 'qualified'
+        WHERE id = ?
+        """,
+        (referral_id,),
+    )
+
+    conn.execute(
+        """
+        INSERT INTO payouts (referral_id, payee_realtor_id, amount, status)
+        VALUES (?,?,?,?)
+        """,
+        (
+            referral["id"],
+            referral["referring_realtor_id"],
+            PAYOUT_AMOUNT,
+            "pending",
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("referrals"))
+
+@app.route("/payouts")
+def payouts():
+    conn = get_db_connection()
+
+    payout_rows = conn.execute(
+        """
+        SELECT
+            p.id,
+            p.amount,
+            p.status,
+            p.created_at,
+            p.paid_at,
+            r.referred_first_name,
+            r.referred_last_name,
+            r.referred_email,
+            re.first_name AS payee_first_name,
+            re.last_name AS payee_last_name
+        FROM payouts AS p
+        JOIN referrals AS r
+            ON p.referral_id = r.id
+        JOIN realtors AS re
+            ON p.payee_realtor_id = re.id
+        ORDER BY p.id DESC
+        """
+    ).fetchall()
+
+    conn.close()
+
+    return render_template("payouts.html", payouts=payout_rows)
 
 
 if __name__ == "__main__":

@@ -84,3 +84,12 @@ def test_qualifying_referral_creates_payout():
     assert payout["payee_realtor_id"] == realtor["id"]
     assert payout["amount"] == 250.0
     assert payout["status"] == "pending"
+
+def test_payouts_page_loads():
+    init_db()
+
+    client = app.test_client()
+    response = client.get("/payouts")
+
+    assert response.status_code == 200
+    assert b"Payouts" in response.data

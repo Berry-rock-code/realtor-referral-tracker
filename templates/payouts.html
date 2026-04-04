@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payouts</title>
+</head>
+<body>
+    <h1>Payouts</h1>
+
+    {% if payouts %}
+        <ul>
+        {% for payout in payouts %}
+            <li>
+                Payee:
+                {{ payout["payee_first_name"] }} {{ payout["payee_last_name"] }}
+                <br>
+                Referred Realtor:
+                {{ payout["referred_first_name"] }} {{ payout["referred_last_name"] }}
+                <br>
+                Referred Email: {{ payout["referred_email"] }}
+                <br>
+                Amount: {{ payout["amount"] }}
+                <br>
+                Status: {{ payout["status"] }}
+                <br>
+                Created At: {{ payout["created_at"] }}
+                <br>
+                Paid At: {{ payout["paid_at"] }}
+            </li>
+            <br>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No payouts yet.</p>
+    {% endif %}
+</body>
+</html>
